@@ -1,0 +1,14 @@
+color = load '$P' using PigStorage(',') as (red:int,green:int,blue:int); 
+redcolor = foreach color generate 1 as type,red as r;
+greencolor = foreach color generate 2 as type,green as g;
+bluecolor = foreach color generate 3 as type,blue as b;
+red_group = GROUP redcolor by r; 
+green_group = GROUP greencolor by g; 
+blue_group = GROUP bluecolor by b; 
+red_count = foreach red_group generate 1 as type,group,COUNT(redcolor);
+green_count = foreach green_group generate 2 as type,group,COUNT(greencolor);
+blue_count = foreach blue_group generate 3 as type,group,COUNT(bluecolor);
+count = UNION red_count,green_count,blue_count;
+count = group count by 1;  
+count = foreach count generate flatten(count);  
+STORE count INTO '$O';
